@@ -1,0 +1,16 @@
+---
+- yum: name={{ item }} state=installed
+  with_items:
+  - mariadb-server
+  - MySQL-python
+
+- template: src=custom.cnf dest=/etc/my.cnf.d/custom.cnf
+  notify: restart mariadb
+
+- template: src=my.cnf dest=/root/.my.cnf mode=600 owner=root group=root
+
+- service: name=mariadb enabled=yes state=started
+
+- copy: mode=0755 src=dump_mariadb.sh dest=/usr/local/bin/dump_mariadb.sh
+
+- cron: minute=15 hour=4 name="backup mariadb" job=/usr/local/bin/dump_mariadb.sh
