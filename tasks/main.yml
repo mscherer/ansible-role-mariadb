@@ -34,6 +34,6 @@
 
 - service: name={{ rdbms }} enabled=yes state=started
 
-- copy: mode=0755 src=dump_{{ rdbms }}.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
+- copy: mode=0755 src=dump_db.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
 
 - cron: minute=15 hour=4 name="backup {{ rdbms }}" job=/usr/local/bin/dump_{{ rdbms }}.sh
