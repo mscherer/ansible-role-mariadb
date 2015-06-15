@@ -4,7 +4,7 @@
 - set_fact: rdbms=mysql
   when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version <= 6
 
-- set_fact: rdbms_root_pw="{{ lookup('password', 'group_vars/all/' + rdbms + '_root_password length=15') }}"
+- set_fact: rdbms_root_pw="{{ lookup('password', rdbms + '_root_password length=15') }}"
 
 - set_fact: rdbms_service=mariadb
   when: rdbms == 'mariadb'
