@@ -32,6 +32,8 @@
   notify: restart mysqld
   when: rdbms == 'mysqld'
 
+- mysql_user: name=root password={{ rdbms_root_pw }}
+
 - template: src=my.client.cnf dest=/root/.my.cnf mode=600 owner=root group=root
 
 - service: name={{ rdbms }} enabled=yes state=started
@@ -40,4 +42,3 @@
 
 - cron: minute=15 hour=4 name="backup {{ rdbms }}" job=/usr/local/bin/dump_{{ rdbms }}.sh
 
-- mysql_user: name=root password={{ rdbms_root_pw }}
