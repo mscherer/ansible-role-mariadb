@@ -5,6 +5,7 @@
   when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version <= 6
 
 - set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password length=15') }}"
+  no_log: True
 
 - set_fact: rdbms_service=mariadb
   when: rdbms == 'mariadb'
@@ -38,3 +39,5 @@
 - copy: mode=0755 src=dump_db.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
 
 - cron: minute=15 hour=4 name="backup {{ rdbms }}" job=/usr/local/bin/dump_{{ rdbms }}.sh
+
+- mysql_user: name=root password={{ rdbms_root_pw }}
