@@ -29,11 +29,11 @@
   notify: restart mysqld
   when: rdbms == 'mysqld'
 
+- service: name={{ rdbms_service }} enabled=yes state=started
+
 - mysql_user: name=root password={{ rdbms_root_pw }}
 
 - template: src=my.client.cnf dest=/root/.my.cnf mode=600 owner=root group=root
-
-- service: name={{ rdbms_service }} enabled=yes state=started
 
 - copy: mode=0755 src=dump_db.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
 
