@@ -37,7 +37,7 @@
     src: my.server.cnf
     dest: /etc/my.cnf
   notify: restart mysqld
-  when: rdbms == 'mysqld'
+  when: rdbms == 'mysql'
 
 - name: "Start the {{ rdbms_service }} service"
   service:
