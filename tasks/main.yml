@@ -29,7 +29,7 @@
     src: my.server.cnf
     dest: /etc/my.cnf
   notify: restart mysqld
-  when: rdbms == 'mysqld'
+  when: rdbms == 'mysql'
 
 - name: Set database admin password
   mysql_user:
