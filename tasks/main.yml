@@ -1,7 +1,7 @@
 ---
 # default to mariadb, see vars/main.yml
 - set_fact: rdbms=mysql
-  when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version <= 6
+  when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version == '6'
 
 # fix once https://github.com/ansible/ansible/pull/17782
 - set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password length=15') }}"
