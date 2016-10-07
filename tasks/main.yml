@@ -43,6 +43,7 @@
     mode: 600
     owner: root
     group: root
+  no_log: True
 
 - name: "Start the {{ rdbms_service }} service"
   service:
