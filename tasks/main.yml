@@ -11,7 +11,7 @@
   when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 14
 
 # fix once https://github.com/ansible/ansible/pull/17782
-- set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password length=15') }}"
+- set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password_' + ansible_fqdn + ' length=15') }}"
   no_log: True
 
 - include_vars: "{{ item }}"
