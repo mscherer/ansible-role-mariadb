@@ -8,9 +8,11 @@
 
 - include_vars: "{{ rdbms }}.yml"
 
-- yum: name={{ item }} state=installed
+- package: 
+    name: "{{ item }}"
+    state: present
   with_items:
-  - "{{ rdbms }}-server"
+  - "{{ rdbms_package }}"
   - MySQL-python
 
 - template: src=custom.cnf dest=/etc/my.cnf.d/custom.cnf

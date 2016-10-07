@@ -1,2 +1,3 @@
 rdbms_service: mysqld
+rdbms_package: mysql-server
 log_file: /var/log/mysql.log
