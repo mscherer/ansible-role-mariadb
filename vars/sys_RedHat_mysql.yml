@@ -1,0 +1,7 @@
+---
+rdbms_packages:
+  - mysql-server
+  - MySQL-python
+rdbms_service: mysqld
+log_file: /var/log/mysql.log
+socket: /var/lib/mysql/mysql.sock

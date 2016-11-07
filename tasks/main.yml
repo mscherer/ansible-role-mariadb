@@ -2,27 +2,24 @@
 - set_fact: rdbms=mariadb
 
 - set_fact: rdbms=mysql
-  when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version <= 6
+  when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version|int <= 6
+
+- set_fact: rdbms=mysql
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version|int < 8
+
+- set_fact: rdbms=mysql
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 14
 
 - set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password length=15') }}"
   no_log: True
 
-- set_fact: rdbms_service=mariadb
-  when: rdbms == 'mariadb'
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "sys_{{ ansible_distribution }}_{{ rdbms }}.yml"
+    - "sys_{{ ansible_os_family }}_{{ rdbms }}.yml"
 
-- set_fact: rdbms_service=mysqld
-  when: rdbms == 'mysql'
-
-- set_fact: log_file=/var/log/mysql.log
-  when: rdbms == 'mysql'
-
-- set_fact: log_file=/var/log/mariadb/mariadb.log
-  when: rdbms == 'mariadb'
-
-- yum: name={{ item }} state=installed
-  with_items:
-  - "{{ rdbms }}-server"
-  - MySQL-python
+- package: name={{ item }} state=installed
+  with_items: "{{ rdbms_packages }}"
 
 - template: src=custom.cnf dest=/etc/my.cnf.d/custom.cnf
   notify: restart mariadb
@@ -36,7 +33,7 @@
 
 - template: src=my.client.cnf dest=/root/.my.cnf mode=600 owner=root group=root
 
-- service: name={{ rdbms }} enabled=yes state=started
+- service: name={{ rdbms_service }} enabled=yes state=started
 
 - copy: mode=0755 src=dump_db.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
 
