@@ -1,7 +1,7 @@
 ---
 rdbms_packages:
   - mariadb-server
-  - MySQL-python
+  - "{{ (ansible_python_interpreter | search('python3')) | ternary('python3-mysql', 'MySQL-python') }}"
 rdbms_service: mariadb
 log_file: /var/log/mariadb/mariadb.log
 socket: /var/lib/mysql/mysql.sock
