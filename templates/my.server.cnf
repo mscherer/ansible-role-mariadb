@@ -11,3 +11,6 @@ bind-address            = 127.0.0.1
 log-error={{ log_file }}
 pid-file=/var/run/mysqld/mysqld.pid
 
+# applications manipulating data need more than the 4MB default
+max_allowed_packet = 16M
+
