@@ -10,7 +10,8 @@
 - set_fact: rdbms=mysql
   when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 14
 
-- set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password length=15') }}"
+# fix once https://github.com/ansible/ansible/pull/17782
+- set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password_' + ansible_fqdn + ' length=15') }}"
   no_log: True
 
 - include_vars: "{{ item }}"
@@ -18,24 +19,55 @@
     - "sys_{{ ansible_distribution }}_{{ rdbms }}.yml"
     - "sys_{{ ansible_os_family }}_{{ rdbms }}.yml"
 
-- package: name={{ item }} state=installed
+- name: Install database packages
+  package:
+    name: "{{ item }}"
+    state: installed
   with_items: "{{ rdbms_packages }}"
 
-- template: src=custom.cnf dest=/etc/my.cnf.d/custom.cnf
-  notify: restart mariadb
+- name: Deploy mariadb configuration
+  template:
+    src: custom.cnf
+    dest: /etc/my.cnf.d/custom.cnf
+  notify: restart rdbms
   when: rdbms == 'mariadb'
 
-- template: src=my.server.cnf dest=/etc/my.cnf
-  notify: restart mysqld
-  when: rdbms == 'mysqld'
+- name: Deploy mysql configuration
+  template:
+    src: my.server.cnf
+    dest: /etc/my.cnf
+  notify: restart rdbms
+  when: rdbms == 'mysql'
 
-- service: name={{ rdbms_service }} enabled=yes state=started
+- name: "Start the {{ rdbms_service }} service"
+  service:
+    name: "{{ rdbms_service }}"
+    enabled: yes
+    state: started
 
-- mysql_user: name=root password={{ rdbms_root_pw }}
+- name: Set database admin password
+  mysql_user:
+    name: root
+    password: "{{ rdbms_root_pw }}"
 
-- template: src=my.client.cnf dest=/root/.my.cnf mode=600 owner=root group=root
+- name: Deploy the client configuration
+  template:
+    src: my.client.cnf
+    dest: /root/.my.cnf
+    mode: 600
+    owner: root
+    group: root
+  no_log: True
 
-- copy: mode=0755 src=dump_db.sh dest=/usr/local/bin/dump_{{ rdbms }}.sh
+- name: "Deploy back script for {{ rdbms }}"
+  copy:
+    mode: 0755
+    src: dump_db.sh
+    dest: "/usr/local/bin/dump_{{ rdbms }}.sh"
 
-- cron: minute=15 hour=4 name="backup {{ rdbms }}" job=/usr/local/bin/dump_{{ rdbms }}.sh
-
+- name: "Deploy cronjob for {{ rdbms }} backup"
+  cron:
+    minute: 15
+    hour: 4
+    name: "backup {{ rdbms }}"
+    job: "/usr/local/bin/dump_{{ rdbms }}.sh"

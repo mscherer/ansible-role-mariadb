@@ -1,6 +1,5 @@
 ---
-- name: restart mariadb
-  service: name=mariadb state=restarted
-
-- name: restart mysqld
-  service: name=mysqld state=restarted
+- name: restart rdbms
+  service:
+    name: "{{ rdbms_service }}"
+    state: restarted
