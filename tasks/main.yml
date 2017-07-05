@@ -54,7 +54,7 @@
   template:
     src: my.client.cnf
     dest: /root/.my.cnf
-    mode: 600
+    mode: 0600
     owner: root
     group: root
   no_log: True
