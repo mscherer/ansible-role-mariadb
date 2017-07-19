@@ -1,20 +1,26 @@
 ---
-- set_fact: rdbms=mariadb
+- name: Set default RDBMS to MariaDB
+  set_fact: rdbms=mariadb
 
-- set_fact: rdbms=mysql
+- name: Detect MySQL on RedHat
+  set_fact: rdbms=mysql
   when: (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') and ansible_distribution_major_version|int <= 6
 
-- set_fact: rdbms=mysql
+- name: Detect MySQL on Debian
+  set_fact: rdbms=mysql
   when: ansible_distribution == 'Debian' and ansible_distribution_major_version|int < 8
 
-- set_fact: rdbms=mysql
+- name: Detect MySQL on Ubuntu
+  set_fact: rdbms=mysql
   when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 14
 
 # fix once https://github.com/ansible/ansible/pull/17782
-- set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password_' + ansible_fqdn + ' length=15') }}"
+- name: Compute RDBMS root password
+  set_fact: rdbms_root_pw="{{ lookup('password', '~/' + rdbms + '_root_password_' + ansible_fqdn + ' length=15') }}"
   no_log: True
 
-- include_vars: "{{ item }}"
+- name: Load RDBMS settings
+  include_vars: "{{ item }}"
   with_first_found:
     - "sys_{{ ansible_distribution }}_{{ rdbms }}.yml"
     - "sys_{{ ansible_os_family }}_{{ rdbms }}.yml"
