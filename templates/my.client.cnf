@@ -1,4 +1,4 @@
 [client]
-user = root
-password = {{ rdbms_root_pw }}
+user=root
+password={{ rdbms_root_pw }}
 
